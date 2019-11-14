@@ -35,9 +35,9 @@ from weeutil.weeutil import to_bool
 
 class IDOKEP(weewx.restx.StdRESTful):
     """Upload data to IDOKEP
-    https://www.idokep.hu
+    http://www.idokep.hu
 
-    URL=https://www.idokep.hu/sendws.php?
+    URL=http://www.idokep.hu/sendws.php?
     PARAMETERS:
         user=username
         pass=password
