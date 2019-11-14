@@ -60,15 +60,16 @@ class IDOKEP(weewx.restx.StdRESTful):
     def __init__(self, engine, config_dict):
         super(IDOKEP, self).__init__(engine, config_dict)
         try:
-            site_dict = weewx.restx.get_dict(config_dict, 'IDOKEP')
+            site_dict = weewx.restx.get_site_dict(config_dict, 'IDOKEP')
             site_dict['username']
             site_dict['password']
         except KeyError as e:
             syslog.syslog(syslog.LOG_DEBUG, "restx: IDOKEP: "
                           "Data will not be posted: Missing option %s" % e)
             return
-        site_dict.setdefault('station_type', 'WS23XX')
-        site_dict.setdefault('database_dict', config_dict['Databases'][config_dict['StdArchive']['archive_database']])
+        site_dict.setdefault('station_type', engine.stn_info.hardware)
+ 	site_dict['manager_dict'] = weewx.manager.get_manager_dict(
+		config_dict['DataBindings'], config_dict['Databases'], 'wx_binding')
 
         self.archive_queue = queue.Queue()
         self.archive_thread = IDOKEPThread(self.archive_queue, **site_dict)
@@ -93,7 +94,7 @@ class IDOKEPThread(weewx.restx.RESTThread):
                 'dayRain'     : '%.2f'}
 
     def __init__(self, queue, username, password,
-                 database_dict,
+                 manager_dict,
                  station_type='WS23XX', server_url=_SERVER_URL, skip_upload=False,
                  post_interval=300, max_backlog=sys.maxsize, stale=None,
                  log_success=True, log_failure=True, 
@@ -142,7 +143,7 @@ class IDOKEPThread(weewx.restx.RESTThread):
         """
         super(IDOKEPThread, self).__init__(queue,
                                            protocol_name='IDOKEP',
-                                           database_dict=database_dict,
+                                           manager_dict=manager_dict,
                                            post_interval=post_interval,
                                            max_backlog=max_backlog,
                                            stale=stale,
