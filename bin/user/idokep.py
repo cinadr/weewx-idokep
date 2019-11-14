@@ -17,12 +17,12 @@
 #     skip_upload = False
 #     station_type = WS23XX
 
-import Queue
+import queue
 import sys
 import syslog
 import time
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 import weewx
 import weewx.restx
@@ -63,14 +63,14 @@ class IDOKEP(weewx.restx.StdRESTful):
             site_dict = weewx.restx.get_dict(config_dict, 'IDOKEP')
             site_dict['username']
             site_dict['password']
-        except KeyError, e:
+        except KeyError as e:
             syslog.syslog(syslog.LOG_DEBUG, "restx: IDOKEP: "
                           "Data will not be posted: Missing option %s" % e)
             return
         site_dict.setdefault('station_type', 'WS23XX')
         site_dict.setdefault('database_dict', config_dict['Databases'][config_dict['StdArchive']['archive_database']])
 
-        self.archive_queue = Queue.Queue()
+        self.archive_queue = queue.Queue()
         self.archive_thread = IDOKEPThread(self.archive_queue, **site_dict)
         self.archive_thread.start()
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
@@ -95,7 +95,7 @@ class IDOKEPThread(weewx.restx.RESTThread):
     def __init__(self, queue, username, password,
                  database_dict,
                  station_type='WS23XX', server_url=_SERVER_URL, skip_upload=False,
-                 post_interval=300, max_backlog=sys.maxint, stale=None,
+                 post_interval=300, max_backlog=sys.maxsize, stale=None,
                  log_success=True, log_failure=True, 
                  timeout=60, max_tries=3, retry_wait=5):
         """Initialize an instances of IDOKEPThread.
@@ -168,7 +168,7 @@ class IDOKEPThread(weewx.restx.RESTThread):
         if self.skip_upload:
             syslog.syslog(syslog.LOG_DEBUG, "restx: IDOKEP: skipping upload")
             return
-        req = urllib2.Request(url)
+        req = urllib.request.Request(url)
         req.add_header("User-Agent", "weewx/%s" % weewx.__version__)
         self.post_with_retries(req)
 
@@ -212,8 +212,8 @@ class IDOKEPThread(weewx.restx.RESTThread):
         return url
 
     def _format(self, record, label):
-        if record.has_key(label) and record[label] is not None:
-            if self._FORMATS.has_key(label):
+        if label in record and record[label] is not None:
+            if label in self._FORMATS:
                 return self._FORMATS[label] % record[label]
             return str(record[label])
         return ''
