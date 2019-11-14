@@ -68,8 +68,8 @@ class IDOKEP(weewx.restx.StdRESTful):
                           "Data will not be posted: Missing option %s" % e)
             return
         site_dict.setdefault('station_type', engine.stn_info.hardware)
- 	site_dict['manager_dict'] = weewx.manager.get_manager_dict(
-		config_dict['DataBindings'], config_dict['Databases'], 'wx_binding')
+        site_dict['manager_dict'] = weewx.manager.get_manager_dict(
+            config_dict['DataBindings'], config_dict['Databases'], 'wx_binding')
 
         self.archive_queue = queue.Queue()
         self.archive_thread = IDOKEPThread(self.archive_queue, **site_dict)
