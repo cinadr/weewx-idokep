@@ -61,7 +61,7 @@ except ImportError:
         logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.1"
+VERSION = "0.3"
 loginf("IDOKEP version %s" % VERSION)
 
 
@@ -125,7 +125,7 @@ class IDOKEP(StdRESTful):
         self.archive_thread = IDOKEPThread(self.archive_queue, **site_dict)
         self.archive_thread.start()
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
-        loginf("IDOKEP: Data will be uploaded for user %s", site_dict['username'])
+        loginf("IDOKEP: Data will be uploaded for user %s" % site_dict['username'])
 
     def new_archive_record(self, event):
         self.archive_queue.put(event.record)
