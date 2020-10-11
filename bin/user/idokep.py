@@ -186,15 +186,12 @@ class IDOKEPThread(RESTThread):
         self.skip_upload = to_bool(skip_upload)
 
     def get_record(self, record, dbmanager):
-        """Ensure that rainRate is in the record."""
         # Have my superclass process the record first.
         record = super(IDOKEPThread, self).get_record(record, dbmanager)
         return record
 
-    def format_url(self, in_record):
-        """Specialized version of format_url() for the AWEKAS protocol."""
+    def format_url(self, in_record):    
 
-        # Convert to units required by awekas
         record = weewx.units.to_METRICWX(in_record)
 
         time_tt = time.gmtime(record['dateTime'])
@@ -235,13 +232,12 @@ class IDOKEPThread(RESTThread):
         return ''
 
     def check_response(self, response):
-        """Specialized version of check_response()."""
         error = True
         for line in response:
             if line.find('sz!'):
                 error=False
         if error:
-            raise FailedPost("Server returned '%s'" % ', '.join(response))
+            logerr("Server returned '%s'" % ', '.join(response))
 
     def process_record(self, record, archive):
         r = self.get_record(record, archive)
