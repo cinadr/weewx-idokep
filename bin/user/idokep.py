@@ -1,4 +1,3 @@
-
 from __future__ import absolute_import
 
 import datetime
@@ -10,13 +9,10 @@ import ssl
 import threading
 import time
 import urllib.request, urllib.parse, urllib.error
-
-# Python 2/3 compatiblity shims
 import six
 from six.moves import http_client
 from six.moves import queue
 from six.moves import urllib
-
 import weedb
 import weeutil.logger
 import weeutil.weeutil
@@ -61,20 +57,12 @@ except ImportError:
         logmsg(syslog.LOG_ERR, msg)
     
 # Print version in syslog for easier troubleshooting
-VERSION = "0.3"
+VERSION = "0.5"
 loginf("IDOKEP version %s" % VERSION)
-
-
-# ==============================================================================
-# IDOKEP
-# ==============================================================================
 
 class IDOKEP(StdRESTful):
     """Upload data to IDOKEP - 
-    https://pro.idokep.hu
-
     To enable this module, add the following to weewx.conf:
-
     [StdRESTful]
         [[IDOKEP]]
             enable   = True
@@ -84,8 +72,6 @@ class IDOKEP(StdRESTful):
             log_failure = True
             skip_upload = False
             station_type = WS23XX
-
-    https://pro.idokep.hu
 
     URL=https://pro.idokep.hu/sendws.php?
     PARAMETERS:
@@ -104,9 +90,7 @@ class IDOKEP(StdRESTful):
         ora=$hour
         perc=$min
         mp=$sec
-        tipus=WS23xx
-    
-    """
+        tipus=WS23xx"""
 
     def __init__(self, engine, config_dict):
         super(IDOKEP, self).__init__(engine, config_dict)
@@ -130,7 +114,6 @@ class IDOKEP(StdRESTful):
     def new_archive_record(self, event):
         self.archive_queue.put(event.record)
 
-
 class IDOKEPThread(RESTThread):
     _SERVER_URL = 'https://pro.idokep.hu/sendws.php'
     _FORMATS = {'barometer'   : '%.1f',
@@ -147,24 +130,17 @@ class IDOKEPThread(RESTThread):
                  log_success=True, log_failure=True,
                  timeout=10, max_tries=3, retry_wait=5,
                  retry_login=3600, retry_certificate=3600, skip_upload=False):
-        """Initialize an instances of IDOKEPThread.
-
-        Parameters specific to this class:
-
-          username: IDOKEP user name
-
-          password: IDOKEP password
-
-          manager_dict: A dictionary holding the database manager
-          information. It will be used to open a connection to the archive 
-          database.
-
-          station_type: weather station type
         
-          server_url: URL of the server
-          Default is the IDOKEP Pro site
-
-        """
+        """Initialize an instances of IDOKEPThread.
+        Parameters specific to this class:
+          - username: IDOKEP user name
+          - password: IDOKEP password
+          - manager_dict: A dictionary holding the database manager
+            information. It will be used to open a connection to the archive 
+            database.
+          - station_type: weather station type
+          - server_url: URL of the server
+            Default is the IDOKEP Pro site"""
         super(IDOKEPThread, self).__init__(q,
                                            protocol_name='IDOKEP',
                                            manager_dict=manager_dict,
@@ -184,11 +160,6 @@ class IDOKEPThread(RESTThread):
         self.station_type = station_type
         self.server_url = server_url
         self.skip_upload = to_bool(skip_upload)
-
-    # def get_record(self, record, dbmanager):
-    #     # Have my superclass process the record first.
-    #     record = super(IDOKEPThread, self).get_record(record, dbmanager)
-    #     return record
 
     def format_url(self, in_record):    
 
@@ -230,24 +201,3 @@ class IDOKEPThread(RESTThread):
                 return self._FORMATS[label] % record[label]
             return str(record[label])
         return ''
-
-    # def check_response(self, response):
-    #     error = True
-    #     loginf("IDOKEP: Upload response received: %s" % response)
-    #     for line in response:
-    #         if line.find('sz!'):
-    #             error=False                
-    #     if error:
-    #         logerr("Server returned '%s'" % ', '.join(response))
-        
-
-    # def process_record(self, record, archive):
-    #     r = self.get_record(record, archive)
-    #     url = self.format_url(r)
-    #     if self.skip_upload:
-    #         loginf("IDOKEP: skipping upload")
-    #         return
-    #     req = urllib.request.Request(url)
-    #     req.add_header("User-Agent", "weewx/%s" % weewx.__version__)
-    #     self.post_with_retries(req)
-    #     loginf("IDOKEP: Upload request sent: %s" % req)
