@@ -9,6 +9,7 @@ import socket
 import ssl
 import threading
 import time
+import urllib.request, urllib.parse, urllib.error
 
 # Python 2/3 compatiblity shims
 import six
@@ -67,7 +68,7 @@ loginf("IDOKEP version %s" % VERSION)
 # IDOKEP
 # ==============================================================================
 
-class StdIDOKEP(StdRESTful):
+class StdIDOKEP(weewx.restx.StdRESTful):
     """Upload data to IDOKEP - 
     https://pro.idokep.hu
 
@@ -129,11 +130,7 @@ class StdIDOKEP(StdRESTful):
         self.archive_queue.put(event.record)
 
 
-# For compatibility with some early alpha versions:
-AWEKAS = StdAWEKAS
-
-
-class IDOKEPThread(RESTThread):
+class IDOKEPThread(weewx.restx.RESTThread):
     _SERVER_URL = 'https://pro.idokep.hu/sendws.php'
     _FORMATS = {'barometer'   : '%.1f',
                 'outTemp'     : '%.1f',
@@ -244,3 +241,13 @@ class IDOKEPThread(RESTThread):
                 error=False
         if error:
             raise FailedPost("Server returned '%s'" % ', '.join(response))
+
+    def process_record(self, record, archive):
+        r = self.get_record(record, archive)
+        url = self.get_url(r)
+        if self.skip_upload:
+            loginf("IDOKEP: skipping upload")
+            return
+        req = urllib.request.Request(url)
+        req.add_header("User-Agent", "weewx/%s" % weewx.__version__)
+        self.post_with_retries(req)
