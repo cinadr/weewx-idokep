@@ -235,16 +235,18 @@ class IDOKEPThread(RESTThread):
         error = True
         for line in response:
             if line.find('sz!'):
-                error=False
+                error=False                
         if error:
             logerr("Server returned '%s'" % ', '.join(response))
+        loginf("IDOKEP: Upload response received: %s" % response)
 
     def process_record(self, record, archive):
         r = self.get_record(record, archive)
-        url = self.get_url(r)
+        url = self.format_url(r)
         if self.skip_upload:
             loginf("IDOKEP: skipping upload")
             return
         req = urllib.request.Request(url)
         req.add_header("User-Agent", "weewx/%s" % weewx.__version__)
         self.post_with_retries(req)
+        loginf("IDOKEP: Upload request sent: %s" % req)
