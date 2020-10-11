@@ -113,7 +113,7 @@ class IDOKEP(StdRESTful):
 
         site_dict = get_site_dict(config_dict, 'IDOKEP', 'username', 'password')
         if site_dict is None:
-            log.error("IDOKEP: Data will not be posted. Check weewx.conf for missing parameters")
+            logerr("IDOKEP: Data will not be posted. Check weewx.conf for missing parameters")
             return
         
         site_dict.setdefault('station_type', engine.stn_info.hardware)        
@@ -125,7 +125,7 @@ class IDOKEP(StdRESTful):
         self.archive_thread = IDOKEPThread(self.archive_queue, **site_dict)
         self.archive_thread.start()
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
-        log.info("IDOKEP: Data will be uploaded for user %s", site_dict['username'])
+        loginf("IDOKEP: Data will be uploaded for user %s", site_dict['username'])
 
     def new_archive_record(self, event):
         self.archive_queue.put(event.record)
@@ -223,7 +223,7 @@ class IDOKEPThread(RESTThread):
 
         if weewx.debug >= 2:
             # show the url in the logs for debug, but mask any credentials
-            log.debug('IDOKEP: url: %s', url.replace(self.password, 'XXX'))
+            logdbg('IDOKEP: url: %s', url.replace(self.password, 'XXX'))
 
         return url
 
