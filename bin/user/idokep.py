@@ -26,6 +26,7 @@ import weewx.units
 import weewx.restx
 from weeutil.config import search_up, accumulateLeaves
 from weeutil.weeutil import to_int, to_float, to_bool, timestamp_to_string, to_sorted_string
+from weewx.restx import StdRESTful, RESTThread, get_site_dict
 
 try:
     # Test for new-style weewx v4 logging by trying to import weeutil.logger
@@ -68,7 +69,7 @@ loginf("IDOKEP version %s" % VERSION)
 # IDOKEP
 # ==============================================================================
 
-class StdIDOKEP(weewx.restx.StdRESTful):
+class IDOKEP(StdRESTful):
     """Upload data to IDOKEP - 
     https://pro.idokep.hu
 
@@ -108,7 +109,7 @@ class StdIDOKEP(weewx.restx.StdRESTful):
     """
 
     def __init__(self, engine, config_dict):
-        super(StdIDOKEP, self).__init__(engine, config_dict)
+        super(IDOKEP, self).__init__(engine, config_dict)
 
         site_dict = get_site_dict(config_dict, 'IDOKEP', 'username', 'password')
         if site_dict is None:
@@ -130,7 +131,7 @@ class StdIDOKEP(weewx.restx.StdRESTful):
         self.archive_queue.put(event.record)
 
 
-class IDOKEPThread(weewx.restx.RESTThread):
+class IDOKEPThread(RESTThread):
     _SERVER_URL = 'https://pro.idokep.hu/sendws.php'
     _FORMATS = {'barometer'   : '%.1f',
                 'outTemp'     : '%.1f',
