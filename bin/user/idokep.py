@@ -185,10 +185,10 @@ class IDOKEPThread(RESTThread):
         self.server_url = server_url
         self.skip_upload = to_bool(skip_upload)
 
-    def get_record(self, record, dbmanager):
-        # Have my superclass process the record first.
-        record = super(IDOKEPThread, self).get_record(record, dbmanager)
-        return record
+    # def get_record(self, record, dbmanager):
+    #     # Have my superclass process the record first.
+    #     record = super(IDOKEPThread, self).get_record(record, dbmanager)
+    #     return record
 
     def format_url(self, in_record):    
 
@@ -231,22 +231,23 @@ class IDOKEPThread(RESTThread):
             return str(record[label])
         return ''
 
-    def check_response(self, response):
-        error = True
-        for line in response:
-            if line.find('sz!'):
-                error=False                
-        if error:
-            logerr("Server returned '%s'" % ', '.join(response))
-        loginf("IDOKEP: Upload response received: %s" % response)
+    # def check_response(self, response):
+    #     error = True
+    #     loginf("IDOKEP: Upload response received: %s" % response)
+    #     for line in response:
+    #         if line.find('sz!'):
+    #             error=False                
+    #     if error:
+    #         logerr("Server returned '%s'" % ', '.join(response))
+        
 
-    def process_record(self, record, archive):
-        r = self.get_record(record, archive)
-        url = self.format_url(r)
-        if self.skip_upload:
-            loginf("IDOKEP: skipping upload")
-            return
-        req = urllib.request.Request(url)
-        req.add_header("User-Agent", "weewx/%s" % weewx.__version__)
-        self.post_with_retries(req)
-        loginf("IDOKEP: Upload request sent: %s" % req)
+    # def process_record(self, record, archive):
+    #     r = self.get_record(record, archive)
+    #     url = self.format_url(r)
+    #     if self.skip_upload:
+    #         loginf("IDOKEP: skipping upload")
+    #         return
+    #     req = urllib.request.Request(url)
+    #     req.add_header("User-Agent", "weewx/%s" % weewx.__version__)
+    #     self.post_with_retries(req)
+    #     loginf("IDOKEP: Upload request sent: %s" % req)
