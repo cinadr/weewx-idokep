@@ -22,6 +22,7 @@ import weeutil.weeutil
 import weewx.engine
 import weewx.manager
 import weewx.units
+import weewx.restx
 from weeutil.config import search_up, accumulateLeaves
 from weeutil.weeutil import to_int, to_float, to_bool, timestamp_to_string, to_sorted_string
 
